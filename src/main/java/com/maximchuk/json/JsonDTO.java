@@ -102,8 +102,9 @@ public abstract class JsonDTO {
                     value = json.getInt(jsonParamName);
                 } else if (field.getGenericType() == long.class || field.getGenericType() == Long.class) {
                     value = json.getLong(jsonParamName);
-                } else if (field.getGenericType() == float.class || field.getGenericType() == Float.class
-                        || field.getGenericType() == double.class || field.getGenericType() == Double.class) {
+                } else if (field.getGenericType() == float.class || field.getGenericType() == Float.class) {
+                    value = (float)json.getDouble(jsonParamName);
+                } else if (field.getGenericType() == double.class || field.getGenericType() == Double.class) {
                     value = json.getDouble(jsonParamName);
                 } else if (field.getGenericType() == String.class) {
                     value = json.getString(jsonParamName);
