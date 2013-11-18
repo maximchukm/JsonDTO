@@ -35,6 +35,10 @@ public abstract class JsonDTO {
         return toJSON(this);
     }
 
+    public void settingFromJson(JSONObject json) throws Exception {
+        fromJSON(this, json);
+    }
+
     public void addFieldToJsonIgnore(String fieldName) {
         ignoredFieldnameSet.add(fieldName);
     }
