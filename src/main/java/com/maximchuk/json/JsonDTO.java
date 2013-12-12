@@ -119,6 +119,8 @@ public abstract class JsonDTO {
                         String dateParrern = field.getAnnotation(JsonDateParam.class).pattern();
                         value = new SimpleDateFormat(dateParrern).parse(json.getString(jsonParamName));
                     }
+                } else if (field.getType().isEnum()) {
+                    value = Enum.valueOf((Class<Enum>)field.getType(), json.getString(jsonParamName));
                 } else if (isJsonDTOClass(field.getType())) {
                     value = fromJSON((JsonDTO) field.getType().newInstance(), (json.getJSONObject(jsonParamName)));
                 } else if (field.getType().isAssignableFrom(List.class)) {
