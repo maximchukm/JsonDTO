@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.6
-version = '4.1'
+version = '5.1'
 
 repositories {
     mavenCentral()
@@ -11,6 +11,7 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'org.json:json:20140107'
+    compile 'javax.ws.rs:javax.ws.rs-api:2.0'
 }
 
 publishing {
@@ -21,6 +22,14 @@ publishing {
             version "$version"
 
             from components.java
+
+            pom.withXml {
+                asNode().dependencies.'*'.findAll() {
+                    it.artifactId.text() != 'javax.ws.rs-api'
+                }.each() {
+                    it.scope*.value = 'compile'
+                }
+            }
         }
         repositories {
             maven {
