@@ -32,12 +32,12 @@ public class JsonDtoListProvider<T extends JsonDTO> extends AbstractProvider<Lis
 
     @Override
     public List<T> readFrom(Class<List<T>> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
-        List resultList = new ArrayList();
+        List<T> resultList = new ArrayList<T>();
         JSONArray jsonArray = new JSONArray(readJsonString(entityStream));
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 Class jsonClass = getClass().getClassLoader().loadClass(((ParameterizedType) genericType).getActualTypeArguments()[0].toString().replace("class ", ""));
-                JsonDTO jsonDTO = (JsonDTO)jsonClass.newInstance();
+                T jsonDTO = (T)jsonClass.newInstance();
                 jsonDTO.settingFromJson(jsonArray.getJSONObject(i));
                 resultList.add(jsonDTO);
             } catch (Exception e) {
