@@ -23,7 +23,7 @@ public abstract class JsonDTO {
     private static final String PERSISTENCE_FIELD = "_persistence_";
 
     private Set<String> ignoredFieldnameSet = new HashSet<String>();
-    private Map<String, Object> paramMap;
+    private Map<String, Class> paramMap;
 
     public JsonDTO() {
     }
@@ -44,9 +44,9 @@ public abstract class JsonDTO {
         ignoredFieldnameSet.add(fieldName);
     }
 
-    public Map<String, Object> getJsonParameters() {
+    public Map<String, Class> getJsonParameters() {
         if (paramMap == null) {
-            paramMap = new HashMap<String, Object>();
+            paramMap = new HashMap<String, Class>();
             List<Field> declaredFields = getDeclaredFields(this.getClass());
             for (Field field: declaredFields) {
                 if (field.getName().contains(PERSISTENCE_FIELD)
@@ -56,9 +56,7 @@ public abstract class JsonDTO {
                     continue;
                 }
                 String jsonParamName = field.isAnnotationPresent(JsonParam.class) ? field.getAnnotation(JsonParam.class).name() : field.getName();
-                String type = field.isAnnotationPresent(JsonConverter.class)?
-                        field.getAnnotation(JsonConverter.class).valueFieldName(): field.getType().getSimpleName().toLowerCase();
-                paramMap.put(jsonParamName, type);
+                paramMap.put(jsonParamName, field.getType());
             }
         }
         return paramMap;
