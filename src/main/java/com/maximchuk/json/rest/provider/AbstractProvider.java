@@ -23,7 +23,7 @@ public abstract class AbstractProvider<T> implements MessageBodyReader<T>, Messa
     protected String readJsonString(InputStream entityStream) throws IOException {
         String json = null;
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(entityStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(entityStream, "UTF8"));
             json = reader.readLine();
             while (reader.ready()) {
                 json += reader.readLine();

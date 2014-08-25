@@ -23,7 +23,7 @@ public abstract class JsonDTO {
     private static final String PERSISTENCE_FIELD = "_persistence_";
 
     private Set<String> ignoredFieldnameSet = new HashSet<String>();
-    private Map<String, String> paramMap;
+    private Map<String, Object> paramMap;
 
     public JsonDTO() {
     }
@@ -44,9 +44,9 @@ public abstract class JsonDTO {
         ignoredFieldnameSet.add(fieldName);
     }
 
-    public Map<String, String> getJsonParameters() {
+    public Map<String, Object> getJsonParameters() {
         if (paramMap == null) {
-            paramMap = new HashMap<String, String>();
+            paramMap = new HashMap<String, Object>();
             List<Field> declaredFields = getDeclaredFields(this.getClass());
             for (Field field: declaredFields) {
                 if (field.getName().contains(PERSISTENCE_FIELD)
@@ -88,7 +88,7 @@ public abstract class JsonDTO {
                         }
                         json.put(jsonParamName, jsonArray);
                     } else
-                    if (field.getType().isAssignableFrom(Map.class)) {
+                    if (Map.class.isAssignableFrom(field.getType())) {
                         Map<String, String> map = (Map)value;
                         JSONObject mapObj = new JSONObject();
                         for (String key: map.keySet()) {
@@ -125,6 +125,12 @@ public abstract class JsonDTO {
             List<Field> declaredFields = getDeclaredFields(obj.getClass());
             for (Field field: declaredFields) {
                 String fieldName =  field.getName();
+
+                if (field.isAnnotationPresent(JsonIgnore.class)
+                        || ignoredFieldnameSet.contains(field.getName())) {
+                    continue;
+                }
+
                 String jsonParamName = field.isAnnotationPresent(JsonParam.class)? field.getAnnotation(JsonParam.class).name(): fieldName;
                 if (!json.has(jsonParamName)) {
                     continue;
@@ -174,8 +180,8 @@ public abstract class JsonDTO {
                     }
                     method.invoke(obj, list);
                 } else
-                if (field.getType().isAssignableFrom(Map.class)) {
-                    Map<String, String> map = new HashMap<String, String>();
+                if (Map.class.isAssignableFrom(field.getType())) {
+                    Map map = (Map)field.getType().newInstance();
                     JSONObject mapJson = json.getJSONObject(jsonParamName);
                     for (Object keyObj: mapJson.keySet()) {
                         String key = (String)keyObj;
