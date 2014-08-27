@@ -4,6 +4,8 @@ import com.maximchuk.json.JsonDTO;
 import com.maximchuk.json.exception.JsonException;
 import org.json.JSONArray;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -23,11 +25,13 @@ import java.util.List;
  *         date 23.08.2014.
  */
 @Provider
+@Consumes("application/json")
+@Produces("application/json")
 public class JsonDtoListProvider<T extends JsonDTO> extends AbstractProvider<List<T>> {
 
     @Override
     public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return type == List.class && mediaType.equals(MEDIA_TYPE);
+        return List.class.isAssignableFrom(type);
     }
 
     @Override
@@ -50,7 +54,7 @@ public class JsonDtoListProvider<T extends JsonDTO> extends AbstractProvider<Lis
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return List.class.isAssignableFrom(type) && isPresentJsonProducesAnntotation(annotations);
+        return List.class.isAssignableFrom(type);
     }
 
     @Override

@@ -1,8 +1,5 @@
 package com.maximchuk.json.rest.provider;
 
-import com.maximchuk.json.annotation.rest.JsonConsumes;
-import com.maximchuk.json.annotation.rest.JsonProduces;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
@@ -10,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
 
 /**
  * @author Maxim Maximchuk
@@ -18,7 +14,6 @@ import java.lang.annotation.Annotation;
  */
 public abstract class AbstractProvider<T> implements MessageBodyReader<T>, MessageBodyWriter<T> {
 
-    protected static final MediaType MEDIA_TYPE = MediaType.APPLICATION_JSON_TYPE;
 
     protected String readJsonString(InputStream entityStream) throws IOException {
         String json = null;
@@ -32,28 +27,6 @@ public abstract class AbstractProvider<T> implements MessageBodyReader<T>, Messa
             entityStream.close();
         }
         return json;
-    }
-
-    protected boolean isPresentJsonConsumesAnntotation(Annotation[] annotations) {
-        boolean present = false;
-        for (Annotation annotation: annotations) {
-            present = annotation.annotationType() == JsonConsumes.class;
-            if (present) {
-                break;
-            }
-        }
-        return present;
-    }
-
-    protected boolean isPresentJsonProducesAnntotation(Annotation[] annotations) {
-        boolean present = false;
-        for (Annotation annotation: annotations) {
-            present = annotation.annotationType() == JsonProduces.class;
-            if (present) {
-                break;
-            }
-        }
-        return present;
     }
 
 }

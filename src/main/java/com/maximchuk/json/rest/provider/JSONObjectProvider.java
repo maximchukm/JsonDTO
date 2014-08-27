@@ -2,6 +2,8 @@ package com.maximchuk.json.rest.provider;
 
 import org.json.JSONObject;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -18,12 +20,14 @@ import java.lang.reflect.Type;
  *         date 22.08.2014.
  */
 @Provider
+@Consumes("application/json")
+@Produces("application/json")
 public class JSONObjectProvider extends AbstractProvider<JSONObject> {
 
 
     @Override
     public boolean isReadable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return aClass == JSONObject.class && (isPresentJsonConsumesAnntotation(annotations) || mediaType.equals(MEDIA_TYPE));
+        return aClass == JSONObject.class;
     }
 
     @Override
@@ -33,7 +37,7 @@ public class JSONObjectProvider extends AbstractProvider<JSONObject> {
 
     @Override
     public boolean isWriteable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return aClass == JSONObject.class && (isPresentJsonProducesAnntotation(annotations) || mediaType.equals(MEDIA_TYPE));
+        return aClass == JSONObject.class;
     }
 
     @Override

@@ -4,6 +4,8 @@ import com.maximchuk.json.JsonDTO;
 import com.maximchuk.json.exception.JsonException;
 import org.json.JSONObject;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -20,6 +22,8 @@ import java.lang.reflect.Type;
  *         date 27.08.2014.
  */
 @Provider
+@Consumes("application/json")
+@Produces("application/json")
 public class JsonDtoProvider<T extends JsonDTO> extends AbstractProvider<T> {
     @Override
     public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
