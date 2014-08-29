@@ -59,11 +59,12 @@ public class JsonDtoListProvider<T extends JsonDTO> extends AbstractProvider<Lis
 
     @Override
     public long getSize(List<T> list, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return getJsonString(list).getBytes().length;
+        return -1;
     }
 
     @Override
     public void writeTo(List<T> list, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+        httpHeaders.putSingle("content-type", MediaType.APPLICATION_JSON + ";charset=utf-8");
         OutputStreamWriter writer = new OutputStreamWriter(entityStream, "UTF8");
         writer.write(getJsonString(list));
         writer.flush();

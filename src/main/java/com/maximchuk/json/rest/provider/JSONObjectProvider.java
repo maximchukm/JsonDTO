@@ -42,11 +42,12 @@ public class JSONObjectProvider extends AbstractProvider<JSONObject> {
 
     @Override
     public long getSize(JSONObject jsonObject, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-        return jsonObject.toString().getBytes().length;
+        return -1;
     }
 
     @Override
-    public void writeTo(JSONObject jsonObject, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> stringObjectMultivaluedMap, OutputStream outputStream) throws IOException, WebApplicationException {
+    public void writeTo(JSONObject jsonObject, Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream outputStream) throws IOException, WebApplicationException {
+        httpHeaders.putSingle("content-type", MediaType.APPLICATION_JSON + ";charset=utf-8");
         OutputStreamWriter writer = new OutputStreamWriter(outputStream, "UTF8");
         writer.write(jsonObject.toString());
         writer.flush();
