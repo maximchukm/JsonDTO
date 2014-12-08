@@ -119,83 +119,77 @@ public abstract class JsonDTO {
     }
 
     private JsonDTO fromJSON(JsonDTO obj, JSONObject json) throws JsonException {
-        try {
-            List<Field> declaredFields = getDeclaredFields(obj.getClass());
-            for (Field field: declaredFields) {
-                String fieldName =  field.getName();
+        if (json != null) {
+            try {
+                List<Field> declaredFields = getDeclaredFields(obj.getClass());
+                for (Field field : declaredFields) {
+                    String fieldName = field.getName();
 
-                if (field.isAnnotationPresent(JsonIgnore.class)
-                        || ignoredFieldnameSet.contains(field.getName())) {
-                    continue;
-                }
-
-                String jsonParamName = field.isAnnotationPresent(JsonParam.class)? field.getAnnotation(JsonParam.class).name(): fieldName;
-                if (!json.has(jsonParamName)) {
-                    continue;
-                }
-
-                Method method = getSetterMethod(obj.getClass(), field);
-
-                Object value = null;
-                if (field.getGenericType() == int.class || field.getGenericType() == Integer.class) {
-                    value = json.getInt(jsonParamName);
-                } else
-                if (field.getGenericType() == long.class || field.getGenericType() == Long.class) {
-                    value = json.getLong(jsonParamName);
-                } else
-                if (field.getGenericType() == float.class || field.getGenericType() == Float.class) {
-                    value = (float)json.getDouble(jsonParamName);
-                } else
-                if (field.getGenericType() == double.class || field.getGenericType() == Double.class) {
-                    value = json.getDouble(jsonParamName);
-                } else
-                if (field.getGenericType() == String.class) {
-                    value = json.getString(jsonParamName);
-                } else
-                if (field.getGenericType() == Boolean.class) {
-                    value = json.getBoolean(jsonParamName);
-                } else
-                if (field.getGenericType() == Date.class) {
-                    if (field.isAnnotationPresent(JsonDateParam.class)) {
-                        String dateParrern = field.getAnnotation(JsonDateParam.class).pattern();
-                        value = new SimpleDateFormat(dateParrern).parse(json.getString(jsonParamName));
+                    if (field.isAnnotationPresent(JsonIgnore.class)
+                            || ignoredFieldnameSet.contains(field.getName())) {
+                        continue;
                     }
-                } else
-                if (field.getType().isEnum()) {
-                    value = Enum.valueOf((Class<Enum>)field.getType(), json.getString(jsonParamName));
-                } else
-                if (isJsonDTOClass(field.getType())) {
-                    value = fromJSON((JsonDTO) field.getType().newInstance(), (json.getJSONObject(jsonParamName)));
-                } else
-                if (field.getType().isAssignableFrom(List.class)) {
-                    String listItemClassName = method.getGenericParameterTypes()[0].toString();
-                    listItemClassName = listItemClassName.substring(listItemClassName.indexOf("<") + 1, listItemClassName.indexOf(">"));
-                    Class clazz = Class.forName(listItemClassName);
-                    List list = new ArrayList();
-                    JSONArray jsonArray = json.getJSONArray(jsonParamName);
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        list.add(fromJSON((JsonDTO)clazz.newInstance(), jsonArray.getJSONObject(i)));
-                    }
-                    method.invoke(obj, list);
-                } else
-                if (Map.class.isAssignableFrom(field.getType())) {
-                    Map map = (Map)field.getType().newInstance();
-                    JSONObject mapJson = json.getJSONObject(jsonParamName);
-                    for (Object keyObj: mapJson.keySet()) {
-                        String key = (String)keyObj;
-                        map.put(key, mapJson.getString(key));
-                    }
-                    value = map;
-                }
 
-                if (value != null) {
-                    method.invoke(obj, value);
+                    String jsonParamName = field.isAnnotationPresent(JsonParam.class) ? field.getAnnotation(JsonParam.class).name() : fieldName;
+                    if (!json.has(jsonParamName)) {
+                        continue;
+                    }
+
+                    Method method = getSetterMethod(obj.getClass(), field);
+
+                    Object value = null;
+                    if (field.getGenericType() == int.class || field.getGenericType() == Integer.class) {
+                        value = json.getInt(jsonParamName);
+                    } else if (field.getGenericType() == long.class || field.getGenericType() == Long.class) {
+                        value = json.getLong(jsonParamName);
+                    } else if (field.getGenericType() == float.class || field.getGenericType() == Float.class) {
+                        value = (float) json.getDouble(jsonParamName);
+                    } else if (field.getGenericType() == double.class || field.getGenericType() == Double.class) {
+                        value = json.getDouble(jsonParamName);
+                    } else if (field.getGenericType() == String.class) {
+                        value = json.getString(jsonParamName);
+                    } else if (field.getGenericType() == Boolean.class) {
+                        value = json.getBoolean(jsonParamName);
+                    } else if (field.getGenericType() == Date.class) {
+                        if (field.isAnnotationPresent(JsonDateParam.class)) {
+                            String dateParrern = field.getAnnotation(JsonDateParam.class).pattern();
+                            value = new SimpleDateFormat(dateParrern).parse(json.getString(jsonParamName));
+                        }
+                    } else if (field.getType().isEnum()) {
+                        value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName));
+                    } else if (isJsonDTOClass(field.getType())) {
+                        value = fromJSON((JsonDTO) field.getType().newInstance(), (json.getJSONObject(jsonParamName)));
+                    } else if (field.getType().isAssignableFrom(List.class)) {
+                        String listItemClassName = method.getGenericParameterTypes()[0].toString();
+                        listItemClassName = listItemClassName.substring(listItemClassName.indexOf("<") + 1, listItemClassName.indexOf(">"));
+                        Class clazz = Class.forName(listItemClassName);
+                        List list = new ArrayList();
+                        JSONArray jsonArray = json.getJSONArray(jsonParamName);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            list.add(fromJSON((JsonDTO) clazz.newInstance(), jsonArray.getJSONObject(i)));
+                        }
+                        method.invoke(obj, list);
+                    } else if (Map.class.isAssignableFrom(field.getType())) {
+                        Map map = (Map) field.getType().newInstance();
+                        JSONObject mapJson = json.getJSONObject(jsonParamName);
+                        for (Object keyObj : mapJson.keySet()) {
+                            String key = (String) keyObj;
+                            map.put(key, mapJson.getString(key));
+                        }
+                        value = map;
+                    }
+
+                    if (value != null) {
+                        method.invoke(obj, value);
+                    }
                 }
+            } catch (Exception ex) {
+                throw new JsonException(ex);
             }
-        } catch (Exception ex) {
-            throw new JsonException(ex);
+            return obj;
+        } else {
+            return null;
         }
-        return obj;
     }
 
     private List<Field> getDeclaredFields(Class clazz) {
