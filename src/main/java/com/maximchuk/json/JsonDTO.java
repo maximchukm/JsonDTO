@@ -6,6 +6,7 @@ import com.maximchuk.json.annotation.JsonIgnore;
 import com.maximchuk.json.annotation.JsonParam;
 import com.maximchuk.json.exception.JsonException;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
@@ -158,7 +159,12 @@ public abstract class JsonDTO {
                     } else if (field.getType().isEnum()) {
                         value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName));
                     } else if (isJsonDTOClass(field.getType())) {
-                        value = fromJSON((JsonDTO) field.getType().newInstance(), (json.getJSONObject(jsonParamName)));
+                        try {
+                            JSONObject jsonObj = json.getJSONObject(jsonParamName);
+                            value = fromJSON((JsonDTO) field.getType().newInstance(), jsonObj);
+                        } catch (JSONException ignore) {
+                            value = null;
+                        }
                     } else if (field.getType().isAssignableFrom(List.class)) {
                         String listItemClassName = method.getGenericParameterTypes()[0].toString();
                         listItemClassName = listItemClassName.substring(listItemClassName.indexOf("<") + 1, listItemClassName.indexOf(">"));
