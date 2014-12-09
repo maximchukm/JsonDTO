@@ -172,7 +172,11 @@ public abstract class JsonDTO {
                         List list = new ArrayList();
                         JSONArray jsonArray = json.getJSONArray(jsonParamName);
                         for (int i = 0; i < jsonArray.length(); i++) {
-                            list.add(fromJSON((JsonDTO) clazz.newInstance(), jsonArray.getJSONObject(i)));
+                            if (isJsonDTOClass(clazz)) {
+                                list.add(fromJSON((JsonDTO) clazz.newInstance(), jsonArray.getJSONObject(i)));
+                            } else {
+                                list.add(jsonArray.get(i));
+                            }
                         }
                         method.invoke(obj, list);
                     } else if (Map.class.isAssignableFrom(field.getType())) {
