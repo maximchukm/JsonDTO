@@ -187,6 +187,10 @@ public abstract class JsonDTO {
                             map.put(key, mapJson.getString(key));
                         }
                         value = map;
+                    } else if (JSONObject.class.isAssignableFrom(field.getType())) {
+                        value = json.getJSONObject(jsonParamName);
+                    } else if (JSONArray.class.isAssignableFrom(field.getType())) {
+                        value = json.getJSONArray(jsonParamName);
                     }
 
                     if (value != null) {
