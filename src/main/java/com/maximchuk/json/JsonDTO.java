@@ -45,6 +45,10 @@ public abstract class JsonDTO {
         ignoredFieldnameSet.add(fieldName);
     }
 
+    public void clearJsonIgnoreFields() {
+        ignoredFieldnameSet.clear();
+    }
+
     public Map<String, Class> getJsonParameters() {
         if (paramMap == null) {
             paramMap = new HashMap<String, Class>();
