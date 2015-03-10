@@ -1,9 +1,12 @@
 package com.maximchuk.json.stream;
 
+import com.maximchuk.json.exception.JsonException;
 import org.json.JSONException;
-import org.json.JSONTokener;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * SAX like JSON parser
@@ -11,49 +14,54 @@ import java.io.InputStream;
  * @author Maxim Maximchuk
  *         date 10.03.15.
  */
-public class DefaultJSONStreamHandler extends JSONTokener {
+public class DefaultJSONStreamHandler {
 
-    String buf = "";
+    private InputStreamReader reader;
+    private String buf = "";
 
     public DefaultJSONStreamHandler(InputStream inputStream) throws JSONException {
-        super(inputStream);
+        reader = new InputStreamReader(inputStream);
     }
 
     public DefaultJSONStreamHandler(String s) {
-        super(s);
+        this(new ByteArrayInputStream(s.getBytes()));
     }
 
-    public void parse() {
-        char c = next();
-        while (!end()) {
-            switch (c) {
-                case '{': {
-                    startObject(extractKey());
-                    break;
+    public void parse() throws JsonException {
+        try {
+            char c = next();
+            while (!end()) {
+                switch (c) {
+                    case '{': {
+                        startObject(extractKey());
+                        break;
+                    }
+                    case '}': {
+                        checkAndSendElement();
+                        endObject();
+                        break;
+                    }
+                    case '[': {
+                        startArray(extractKey());
+                        break;
+                    }
+                    case ']': {
+                        checkAndSendElement();
+                        endArray();
+                        break;
+                    }
+                    case ',': {
+                        checkAndSendElement();
+                        break;
+                    }
+                    default: {
+                        buf += c;
+                    }
                 }
-                case '}': {
-                    checkAndSendElement();
-                    endObject();
-                    break;
-                }
-                case '[': {
-                    startArray(extractKey());
-                    break;
-                }
-                case ']': {
-                    checkAndSendElement();
-                    endArray();
-                    break;
-                }
-                case ',': {
-                    checkAndSendElement();
-                    break;
-                }
-                default: {
-                    buf += c;
-                }
+                c = next();
             }
-            c = next();
+        } catch (IOException e) {
+            throw new JsonException(e);
         }
 
     }
@@ -89,6 +97,14 @@ public class DefaultJSONStreamHandler extends JSONTokener {
             cleanBuf();
             element(key, value);
         }
+    }
+
+    private char next() throws IOException {
+        return (char)reader.read();
+    }
+
+    private boolean end() throws IOException {
+        return !reader.ready();
     }
 
     public void startObject(String key) {}
