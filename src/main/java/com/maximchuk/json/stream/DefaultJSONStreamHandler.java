@@ -28,46 +28,68 @@ public class DefaultJSONStreamHandler {
     }
 
     public void parse() throws JsonException {
+        boolean isSpecial;
+
+        boolean isText1 = false;
+        boolean isText2 = false;
         try {
-            char c = next();
+            char c;
+            int i = 0;
             while (!end()) {
-                switch (c) {
-                    case '{': {
-                        startObject(extractKey());
-                        break;
-                    }
-                    case '}': {
-                        checkAndSendElement();
-                        endObject();
-                        break;
-                    }
-                    case '[': {
-                        startArray(extractKey());
-                        break;
-                    }
-                    case ']': {
-                        checkAndSendElement();
-                        endArray();
-                        break;
-                    }
-                    case ',': {
-                        checkAndSendElement();
-                        break;
-                    }
-                    default: {
-                        buf += c;
+                c = next();
+                i++;
+                isSpecial = false;
+
+                if (c == '"') {
+                    if (!isText2) {
+                        isText1 = !isText1;
+                        continue;
                     }
                 }
-                c = next();
+                if (c == '\'') {
+                    if (!isText1) {
+                        isText2 = !isText2;
+                        continue;
+                    }
+                }
+                if (!(isText1 | isText2)) {
+                    isSpecial = true;
+                    switch (c) {
+                        case '{': {
+                            startObject(extractKey());
+                            break;
+                        }
+                        case '}': {
+                            checkAndSendElement();
+                            endObject();
+                            break;
+                        }
+                        case '[': {
+                            startArray(extractKey());
+                            break;
+                        }
+                        case ']': {
+                            checkAndSendElement();
+                            endArray();
+                            break;
+                        }
+                        case ',': {
+                            checkAndSendElement();
+                            break;
+                        }
+                        default: {
+                            isSpecial = false;
+                        }
+                    }
+                }
+                if (!isSpecial) {
+                    buf += c;
+                }
             }
         } catch (IOException e) {
             throw new JsonException(e);
         }
 
-    }
-
-    private String cleanJsonElementString(String string) {
-        return string.trim().replace("\'", "").replace("\"", "");
     }
 
     private void cleanBuf() {
@@ -77,7 +99,7 @@ public class DefaultJSONStreamHandler {
     private String extractKey() {
         String key = null;
         if (buf.length() > 0 && buf.trim().endsWith(":")) {
-            key = cleanJsonElementString(buf.substring(0, buf.lastIndexOf(':')));
+            key = buf.substring(0, buf.lastIndexOf(':'));
             cleanBuf();
         }
         return key;
@@ -89,10 +111,10 @@ public class DefaultJSONStreamHandler {
             String value;
             String[] sbuf = buf.split(":");
             if (sbuf.length > 1) {
-                key = cleanJsonElementString(sbuf[0]);
-                value = cleanJsonElementString(sbuf[1]);
+                key = sbuf[0];
+                value = sbuf[1];
             } else {
-                value = cleanJsonElementString(sbuf[0]);
+                value = sbuf[0];
             }
             cleanBuf();
             element(key, value);
