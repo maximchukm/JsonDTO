@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * SAX like JSON parser
+ * Event based stream JSON parser
  *
  * @author Maxim Maximchuk
  *         date 10.03.15.
