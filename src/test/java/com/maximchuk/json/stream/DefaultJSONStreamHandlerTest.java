@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class DefaultJSONStreamHandlerTest {
 
-    private static final String TEST_JSON_STRING = "[array1, 'array2', { obj1 : {key1: 'value1', key2: 'value2'}, obj2 : {key3:value3}}}, {'otherKey': \"someValue\"}]";
+    private static final String TEST_JSON_STRING = "[array1, 'array2', { obj1 : {key1: 'value1', key2: 'value2'}, obj2 : {key3:value3}}, {'otherKey': \"someValue, with comma\"}]";
 
     @Test
     public void testHandle() {

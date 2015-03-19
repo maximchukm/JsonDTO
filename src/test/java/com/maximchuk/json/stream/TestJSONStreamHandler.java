@@ -42,16 +42,17 @@ public class TestJSONStreamHandler extends DefaultJSONStreamHandler {
     }
 
     @Override
-    public void element(String key, String value) {
-        if (key != null) {
-            if (objKey != null) {
-                ((JSONObject)obj.get(objKey)).put(key, value);
-            } else {
-                obj.put(key, value);
-            }
+    public void objectPrimitive(String key, String value) {
+        if (objKey != null) {
+            ((JSONObject)obj.get(objKey)).put(key, value);
         } else {
-            array.put(value);
+            obj.put(key, value);
         }
+    }
+
+    @Override
+    public void arrayPrimitive(String value) {
+        array.put(value);
     }
 
     public JSONArray getResult() {

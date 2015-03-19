@@ -7,6 +7,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SAX like JSON parser
@@ -34,22 +36,17 @@ public class DefaultJSONStreamHandler {
         boolean isText2 = false;
         try {
             char c;
-            int i = 0;
             while (!end()) {
-                c = next();
-                i++;
                 isSpecial = false;
-
+                c = next();
                 if (c == '"') {
                     if (!isText2) {
                         isText1 = !isText1;
-                        continue;
                     }
                 }
                 if (c == '\'') {
                     if (!isText1) {
                         isText2 = !isText2;
-                        continue;
                     }
                 }
                 if (!(isText1 | isText2)) {
@@ -60,7 +57,7 @@ public class DefaultJSONStreamHandler {
                             break;
                         }
                         case '}': {
-                            checkAndSendElement();
+                            preparePrimitive();
                             endObject();
                             break;
                         }
@@ -69,12 +66,12 @@ public class DefaultJSONStreamHandler {
                             break;
                         }
                         case ']': {
-                            checkAndSendElement();
+                            preparePrimitive();
                             endArray();
                             break;
                         }
                         case ',': {
-                            checkAndSendElement();
+                            preparePrimitive();
                             break;
                         }
                         default: {
@@ -82,7 +79,9 @@ public class DefaultJSONStreamHandler {
                         }
                     }
                 }
-                if (!isSpecial) {
+                if (isSpecial) {
+                    cleanBuf();
+                } else {
                     buf += c;
                 }
             }
@@ -99,44 +98,79 @@ public class DefaultJSONStreamHandler {
     private String extractKey() {
         String key = null;
         if (buf.length() > 0 && buf.trim().endsWith(":")) {
-            key = buf.substring(0, buf.lastIndexOf(':'));
-            cleanBuf();
+            key = parseKeyValue(buf)[0];
         }
         return key;
     }
 
-    private void checkAndSendElement() {
+    private void preparePrimitive() {
         if (buf.length() > 0) {
-            String key = null;
-            String value;
-            String[] sbuf = buf.split(":");
-            if (sbuf.length > 1) {
-                key = sbuf[0];
-                value = sbuf[1];
+            String[] parsed = parseKeyValue(buf);
+            if (parsed.length > 1) {
+                objectPrimitive(parsed[0], parsed[1]);
             } else {
-                value = sbuf[0];
+                arrayPrimitive(parsed[0]);
             }
-            cleanBuf();
-            element(key, value);
         }
     }
 
+    private String[] parseKeyValue(String string) {
+        buf = buf.trim();
+        char sh = 0;
+        List<String> result = new ArrayList<String>(2);
+        String s = "";
+        for (char c : buf.toCharArray()) {
+            if (c == '\'' || c == '"') {
+                if (sh == c) {
+                    sh = 0;
+                } else if (sh == 0) {
+                    sh = c;
+                }
+                continue;
+            }
+            if (sh == 0) {
+                if (c == ':') {
+                    result.add(s);
+                    s = "";
+                    continue;
+                }
+                if (c == 32) {
+                    continue;
+                }
+            }
+            s += c;
+        }
+        if (!s.isEmpty()) {
+            result.add(s);
+        }
+
+        return result.toArray(new String[result.size()]);
+    }
+
     private char next() throws IOException {
-        return (char)reader.read();
+        return (char) reader.read();
     }
 
     private boolean end() throws IOException {
         return !reader.ready();
     }
 
-    public void startObject(String key) {}
+    public void startObject(String key) {
+    }
 
-    public void endObject() {}
+    public void endObject() {
+    }
 
-    public void startArray(String key) {}
+    public void startArray(String key) {
+    }
 
-    public void endArray() {}
+    public void endArray() {
+    }
 
-    public void element(String key, String value) {}
+    public void objectPrimitive(String key, String value) {
+    }
+
+    public void arrayPrimitive(String value) {
+    }
 
 }
