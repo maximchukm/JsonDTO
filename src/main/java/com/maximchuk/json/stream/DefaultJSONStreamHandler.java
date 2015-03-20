@@ -7,8 +7,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Event based stream JSON parser
@@ -19,6 +17,7 @@ import java.util.List;
 public class DefaultJSONStreamHandler {
 
     private InputStreamReader reader;
+    private String key = null;
     private String buf = "";
 
     public DefaultJSONStreamHandler(InputStream inputStream) throws JSONException {
@@ -31,29 +30,27 @@ public class DefaultJSONStreamHandler {
 
     public void parse() throws JsonException {
         boolean isSpecial;
-
-        boolean isText1 = false;
-        boolean isText2 = false;
+        char sh = 0;
         try {
             char c;
             while (!end()) {
                 isSpecial = false;
                 c = next();
-                if (c == '"') {
-                    if (!isText2) {
-                        isText1 = !isText1;
+                if (c == '\'' || c == '"') {
+                    if (sh == c) {
+                        sh = 0;
+                        continue;
+                    } else if (sh == 0) {
+                        sh = c;
+                        continue;
                     }
                 }
-                if (c == '\'') {
-                    if (!isText1) {
-                        isText2 = !isText2;
-                    }
-                }
-                if (!(isText1 | isText2)) {
+                if (sh == 0) {
                     isSpecial = true;
                     switch (c) {
                         case '{': {
-                            startObject(extractKey());
+                            startObject(key);
+                            key = null;
                             break;
                         }
                         case '}': {
@@ -62,12 +59,17 @@ public class DefaultJSONStreamHandler {
                             break;
                         }
                         case '[': {
-                            startArray(extractKey());
+                            startArray(key);
+                            key = null;
                             break;
                         }
                         case ']': {
                             preparePrimitive();
                             endArray();
+                            break;
+                        }
+                        case ':': {
+                            key = buf;
                             break;
                         }
                         case ',': {
@@ -80,8 +82,8 @@ public class DefaultJSONStreamHandler {
                     }
                 }
                 if (isSpecial) {
-                    cleanBuf();
-                } else {
+                    buf = "";
+                } else if (!(sh == 0 && c == 32)) {
                     buf += c;
                 }
             }
@@ -91,60 +93,15 @@ public class DefaultJSONStreamHandler {
 
     }
 
-    private void cleanBuf() {
-        buf = "";
-    }
-
-    private String extractKey() {
-        String key = null;
-        if (buf.length() > 0 && buf.trim().endsWith(":")) {
-            key = parseKeyValue(buf)[0];
-        }
-        return key;
-    }
-
     private void preparePrimitive() {
-        if (buf.length() > 0) {
-            String[] parsed = parseKeyValue(buf);
-            if (parsed.length > 1) {
-                objectPrimitive(parsed[0], parsed[1]);
+        if (!buf.isEmpty()) {
+            if (key != null) {
+                objectPrimitive(key, buf);
+                key = null;
             } else {
-                arrayPrimitive(parsed[0]);
+                arrayPrimitive(buf);
             }
         }
-    }
-
-    private String[] parseKeyValue(String string) {
-        buf = buf.trim();
-        char sh = 0;
-        List<String> result = new ArrayList<String>(2);
-        String s = "";
-        for (char c : buf.toCharArray()) {
-            if (c == '\'' || c == '"') {
-                if (sh == c) {
-                    sh = 0;
-                } else if (sh == 0) {
-                    sh = c;
-                }
-                continue;
-            }
-            if (sh == 0) {
-                if (c == ':') {
-                    result.add(s);
-                    s = "";
-                    continue;
-                }
-                if (c == 32) {
-                    continue;
-                }
-            }
-            s += c;
-        }
-        if (!s.isEmpty()) {
-            result.add(s);
-        }
-
-        return result.toArray(new String[result.size()]);
     }
 
     private char next() throws IOException {
