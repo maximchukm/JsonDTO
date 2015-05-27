@@ -256,7 +256,7 @@ public abstract class JsonDTO {
 
     private boolean isJsonDTOClass(Class clazz) {
         boolean isJsonDTO = false;
-        if (!clazz.isEnum() && !clazz.isInterface())  {
+        if (!clazz.isPrimitive() && !clazz.isEnum() && !clazz.isInterface())  {
             isJsonDTO = clazz == JsonDTO.class;
             if (!isJsonDTO && clazz != Object.class) {
                 isJsonDTO = isJsonDTOClass(clazz.getSuperclass());
