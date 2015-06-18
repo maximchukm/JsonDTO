@@ -1,9 +1,6 @@
 package com.maximchuk.json;
 
-import com.maximchuk.json.annotation.JsonConverter;
-import com.maximchuk.json.annotation.JsonDateParam;
-import com.maximchuk.json.annotation.JsonIgnore;
-import com.maximchuk.json.annotation.JsonParam;
+import com.maximchuk.json.annotation.*;
 import com.maximchuk.json.exception.JsonException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -103,9 +100,16 @@ public abstract class JsonDTO {
                         }
                         json.put(jsonParamName, mapObj);
                     } else
-                    if (field.getGenericType() == Date.class && field.isAnnotationPresent(JsonDateParam.class)) {
-                        String dateParrern = field.getAnnotation(JsonDateParam.class).pattern();
-                        json.put(jsonParamName, new SimpleDateFormat(dateParrern).format((Date)value));
+                    if (field.getGenericType() == Date.class) {
+                        if (field.isAnnotationPresent(JsonDatePattern.class)) {
+                            String datePattern = field.getAnnotation(JsonDatePattern.class).value();
+                            json.put(jsonParamName, new SimpleDateFormat(datePattern).format((Date)value));
+                        } else if (field.isAnnotationPresent(JsonDateParam.class)) {
+                            String datePattern = field.getAnnotation(JsonDateParam.class).pattern();
+                            json.put(jsonParamName, new SimpleDateFormat(datePattern).format((Date)value));
+                        } else {
+                            json.put(jsonParamName, ((Date) value).getTime());
+                        }
                     } else
                     if (isJsonDTOClass(field.getType())) {
                         if (field.isAnnotationPresent(JsonConverter.class)) {
@@ -160,9 +164,14 @@ public abstract class JsonDTO {
                     } else if (field.getGenericType() == Boolean.class) {
                         value = json.getBoolean(jsonParamName);
                     } else if (field.getGenericType() == Date.class) {
-                        if (field.isAnnotationPresent(JsonDateParam.class)) {
-                            String dateParrern = field.getAnnotation(JsonDateParam.class).pattern();
-                            value = new SimpleDateFormat(dateParrern).parse(json.getString(jsonParamName));
+                        if (field.isAnnotationPresent(JsonDatePattern.class)) {
+                            String datePattern = field.getAnnotation(JsonDatePattern.class).value();
+                            value = new SimpleDateFormat(datePattern).parse(json.getString(jsonParamName));
+                        } else if (field.isAnnotationPresent(JsonDateParam.class)) {
+                            String datePattern = field.getAnnotation(JsonDateParam.class).pattern();
+                            value = new SimpleDateFormat(datePattern).parse(json.getString(jsonParamName));
+                        } else {
+                            value = new Date(json.getLong(json.getString(jsonParamName)));
                         }
                     } else if (field.getType().isEnum()) {
                         value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName));

@@ -6,12 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Maxim L. Maximcuhk
- *         Date: 22.07.13
+ * Created by Maxim Maximchuk on 18.06.2015.
  */
-@Deprecated
 @Target(value = ElementType.FIELD)
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface JsonDateParam {
-    String pattern();
+public @interface JsonDatePattern {
+    String value();
 }
