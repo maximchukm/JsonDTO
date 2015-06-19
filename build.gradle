@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.6
-version = '9.2.2'
+version = '9.3.0'
 
 repositories {
     mavenCentral()

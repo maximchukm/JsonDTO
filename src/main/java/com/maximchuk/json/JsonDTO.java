@@ -64,6 +64,22 @@ public abstract class JsonDTO {
         return paramMap;
     }
 
+    public JSONObject diff(JSONObject json) throws JsonException {
+        JSONObject diffJson = new JSONObject();
+        JSONObject thisJson = toJSON();
+        Set<String> keySet = json.keySet();
+        for (String key: keySet) {
+            if (thisJson.has(key) && !thisJson.get(key).equals(json.get(key))) {
+                diffJson.put(key, json.get(key));
+            }
+        }
+        return diffJson;
+    }
+
+    public JSONObject diff(JsonDTO jsonDTO) throws JsonException {
+        return diff(jsonDTO.toJSON());
+    }
+
     private JSONObject toJSON(Object object) throws JsonException {
         JSONObject json = new JSONObject();
         try {
