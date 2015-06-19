@@ -64,20 +64,39 @@ public abstract class JsonDTO {
         return paramMap;
     }
 
-    public JSONObject diff(JSONObject json) throws JsonException {
+    public JSONObject diffJson(JSONObject json, boolean revert) throws JsonException {
         JSONObject diffJson = new JSONObject();
-        JSONObject thisJson = toJSON();
-        Set<String> keySet = json.keySet();
-        for (String key: keySet) {
-            if (thisJson.has(key) && !thisJson.get(key).equals(json.get(key))) {
-                diffJson.put(key, json.get(key));
+        JSONObject firstJson;
+        JSONObject secondJson;
+
+        if (revert) {
+            firstJson = json;
+            secondJson = toJSON();
+        } else {
+            firstJson = toJSON();
+            secondJson = json;
+        }
+
+        Iterator<String> keys = json.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            if (firstJson.has(key) && !firstJson.get(key).equals(secondJson.get(key))) {
+                diffJson.put(key, secondJson.get(key));
             }
         }
         return diffJson;
     }
 
-    public JSONObject diff(JsonDTO jsonDTO) throws JsonException {
-        return diff(jsonDTO.toJSON());
+    public JSONObject diffJson(JSONObject json) throws JsonException {
+        return diffJson(json, false);
+    }
+
+    public JSONObject diffJson(JsonDTO jsonDTO, boolean revert) throws JsonException {
+        return diffJson(jsonDTO.toJSON(), revert);
+    }
+
+    public JSONObject diffJson(JsonDTO jsonDTO) throws JsonException {
+        return diffJson(jsonDTO.toJSON(), false);
     }
 
     private JSONObject toJSON(Object object) throws JsonException {

@@ -20,11 +20,11 @@ public class JsonDTOTest {
             TestJsonDto testJsonDto = new TestJsonDto();
             TestJsonDto toCompareJsonDto = new TestJsonDto();
             toCompareJsonDto.setDate(new Date(new Date().getTime() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)));
-            JSONObject result = testJsonDto.diff(toCompareJsonDto);
+            JSONObject result = testJsonDto.diffJson(toCompareJsonDto);
             assertEquals(1, result.length());
 
             toCompareJsonDto.setString("Hello test");
-            result = testJsonDto.diff(toCompareJsonDto);
+            result = testJsonDto.diffJson(toCompareJsonDto);
             assertEquals(2, result.length());
         } catch (Exception e) {
             fail(e.getMessage());
