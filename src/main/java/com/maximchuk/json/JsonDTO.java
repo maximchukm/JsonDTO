@@ -209,7 +209,14 @@ public abstract class JsonDTO {
                             value = new Date(json.getLong(json.getString(jsonParamName)));
                         }
                     } else if (field.getType().isEnum()) {
-                        value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName));
+                        JsonEnumType type = JsonEnumType.STRING;
+                        if (field.isAnnotationPresent(JsonEnum.class)) {
+                            type = field.getAnnotation(JsonEnum.class).value();
+                        }
+                        switch (type) {
+                            case ORDINAL: value = field.getType().getEnumConstants()[json.getInt(jsonParamName)]; break;
+                            case STRING: value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName)); break;
+                        }
                     } else if (isJsonDTOClass(field.getType())) {
                         try {
                             JSONObject jsonObj = json.getJSONObject(jsonParamName);
