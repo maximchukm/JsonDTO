@@ -206,7 +206,7 @@ public abstract class JsonDTO {
                             String datePattern = field.getAnnotation(JsonDateParam.class).pattern();
                             value = new SimpleDateFormat(datePattern).parse(json.getString(jsonParamName));
                         } else {
-                            value = new Date(json.getLong(json.getString(jsonParamName)));
+                            value = new Date(json.getLong(jsonParamName));
                         }
                     } else if (field.getType().isEnum()) {
                         JsonEnumType type = JsonEnumType.STRING;
