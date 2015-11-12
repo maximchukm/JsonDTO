@@ -77,10 +77,18 @@ public abstract class JsonDTO {
             secondJson = json;
         }
 
-        Iterator<String> keys = json.keys();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            if (firstJson.has(key) && !firstJson.get(key).equals(secondJson.get(key))) {
+        Iterator fkeys = firstJson.keys();
+        while (fkeys.hasNext()) {
+            String key = (String)fkeys.next();
+            if (secondJson.has(key) && !firstJson.get(key).equals(secondJson.get(key))) {
+                diffJson.put(key, secondJson.get(key));
+            }
+        }
+
+        Iterator skeys = secondJson.keys();
+        while (skeys.hasNext()) {
+            String key = (String)skeys.next();
+            if (!firstJson.has(key)) {
                 diffJson.put(key, secondJson.get(key));
             }
         }
