@@ -128,7 +128,7 @@ public abstract class JsonDTO {
                         JSONArray jsonArray = new JSONArray();
                         for (Object obj: list) {
                             if (JsonDTO.class.isAssignableFrom(obj.getClass())) {
-                                jsonArray.put(toJSON(obj));
+                                jsonArray.put(((JsonDTO)obj).toJSON());
                             } else {
                                 jsonArray.put(obj.toString());
                             }
