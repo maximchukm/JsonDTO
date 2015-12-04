@@ -200,8 +200,20 @@ public abstract class JsonDTO {
                         value = json.getLong(jsonParamName);
                     } else if (field.getGenericType() == float.class || field.getGenericType() == Float.class) {
                         value = (float) json.getDouble(jsonParamName);
+                        if (Float.isInfinite((Float) value)) {
+                            throw new JsonException(jsonParamName + " is infinite");
+                        }
+                        if (Float.isNaN((Float) value)) {
+                            throw new JsonException(jsonParamName + " not a number");
+                        }
                     } else if (field.getGenericType() == double.class || field.getGenericType() == Double.class) {
                         value = json.getDouble(jsonParamName);
+                        if (Double.isInfinite((Double) value)) {
+                            throw new JsonException(jsonParamName + " is infinite");
+                        }
+                        if (Double.isNaN((Double) value)) {
+                            throw new JsonException(jsonParamName + " not a number");
+                        }
                     } else if (field.getGenericType() == String.class) {
                         value = json.getString(jsonParamName);
                     } else if (field.getGenericType() == Boolean.class) {
@@ -222,8 +234,12 @@ public abstract class JsonDTO {
                             type = field.getAnnotation(JsonEnum.class).value();
                         }
                         switch (type) {
-                            case ORDINAL: value = field.getType().getEnumConstants()[json.getInt(jsonParamName)]; break;
-                            case STRING: value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName)); break;
+                            case ORDINAL:
+                                value = field.getType().getEnumConstants()[json.getInt(jsonParamName)];
+                                break;
+                            case STRING:
+                                value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName));
+                                break;
                         }
                     } else if (isJsonDTOClass(field.getType())) {
                         try {
@@ -264,8 +280,10 @@ public abstract class JsonDTO {
                         method.invoke(obj, value);
                     }
                 }
-            } catch (Exception ex) {
-                throw new JsonException(ex);
+            } catch (JsonException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new JsonException(e);
             }
             return obj;
         } else {
