@@ -216,7 +216,7 @@ public abstract class JsonDTO {
                         }
                     } else if (field.getGenericType() == String.class) {
                         value = json.getString(jsonParamName);
-                    } else if (field.getGenericType() == Boolean.class) {
+                    } else if (field.getGenericType() == Boolean.class || field.getGenericType() == boolean.class) {
                         value = json.getBoolean(jsonParamName);
                     } else if (field.getGenericType() == Date.class) {
                         if (field.isAnnotationPresent(JsonDatePattern.class)) {
