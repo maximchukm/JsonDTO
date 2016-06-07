@@ -194,88 +194,89 @@ public abstract class JsonDTO {
                     Method method = getSetterMethod(obj.getClass(), field);
 
                     Object value = null;
-                    if (field.getGenericType() == int.class || field.getGenericType() == Integer.class) {
-                        value = json.getInt(jsonParamName);
-                    } else if (field.getGenericType() == long.class || field.getGenericType() == Long.class) {
-                        value = json.getLong(jsonParamName);
-                    } else if (field.getGenericType() == float.class || field.getGenericType() == Float.class) {
-                        value = (float) json.getDouble(jsonParamName);
-                        if (Float.isInfinite((Float) value)) {
-                            throw new JsonException(jsonParamName + " is infinite");
-                        }
-                        if (Float.isNaN((Float) value)) {
-                            throw new JsonException(jsonParamName + " not a number");
-                        }
-                    } else if (field.getGenericType() == double.class || field.getGenericType() == Double.class) {
-                        value = json.getDouble(jsonParamName);
-                        if (Double.isInfinite((Double) value)) {
-                            throw new JsonException(jsonParamName + " is infinite");
-                        }
-                        if (Double.isNaN((Double) value)) {
-                            throw new JsonException(jsonParamName + " not a number");
-                        }
-                    } else if (field.getGenericType() == String.class) {
-                        value = json.getString(jsonParamName);
-                    } else if (field.getGenericType() == Boolean.class || field.getGenericType() == boolean.class) {
-                        value = json.getBoolean(jsonParamName);
-                    } else if (field.getGenericType() == Date.class) {
-                        if (field.isAnnotationPresent(JsonDatePattern.class)) {
-                            String datePattern = field.getAnnotation(JsonDatePattern.class).value();
-                            value = new SimpleDateFormat(datePattern).parse(json.getString(jsonParamName));
-                        } else if (field.isAnnotationPresent(JsonDateParam.class)) {
-                            String datePattern = field.getAnnotation(JsonDateParam.class).pattern();
-                            value = new SimpleDateFormat(datePattern).parse(json.getString(jsonParamName));
-                        } else {
-                            value = new Date(json.getLong(jsonParamName));
-                        }
-                    } else if (field.getType().isEnum()) {
-                        JsonEnumType type = JsonEnumType.STRING;
-                        if (field.isAnnotationPresent(JsonEnum.class)) {
-                            type = field.getAnnotation(JsonEnum.class).value();
-                        }
-                        switch (type) {
-                            case ORDINAL:
-                                value = field.getType().getEnumConstants()[json.getInt(jsonParamName)];
-                                break;
-                            case STRING:
-                                value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName));
-                                break;
-                        }
-                    } else if (isJsonDTOClass(field.getType())) {
-                        try {
-                            JSONObject jsonObj = json.getJSONObject(jsonParamName);
-                            value = fromJSON((JsonDTO) field.getType().newInstance(), jsonObj);
-                        } catch (JSONException ignore) {
-                            value = null;
-                        }
-                    } else if (field.getType().isAssignableFrom(List.class)) {
-                        String listItemClassName = method.getGenericParameterTypes()[0].toString();
-                        listItemClassName = listItemClassName.substring(listItemClassName.indexOf("<") + 1, listItemClassName.indexOf(">"));
-                        Class clazz = Class.forName(listItemClassName);
-                        List list = new ArrayList();
-                        JSONArray jsonArray = json.getJSONArray(jsonParamName);
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            if (isJsonDTOClass(clazz)) {
-                                list.add(fromJSON((JsonDTO) clazz.newInstance(), jsonArray.getJSONObject(i)));
-                            } else {
-                                list.add(jsonArray.get(i));
+                    if (!json.isNull(jsonParamName)) {
+                        if (field.getGenericType() == int.class || field.getGenericType() == Integer.class) {
+                            value = json.getInt(jsonParamName);
+                        } else if (field.getGenericType() == long.class || field.getGenericType() == Long.class) {
+                            value = json.getLong(jsonParamName);
+                        } else if (field.getGenericType() == float.class || field.getGenericType() == Float.class) {
+                            value = (float) json.getDouble(jsonParamName);
+                            if (Float.isInfinite((Float) value)) {
+                                throw new JsonException(jsonParamName + " is infinite");
                             }
+                            if (Float.isNaN((Float) value)) {
+                                throw new JsonException(jsonParamName + " not a number");
+                            }
+                        } else if (field.getGenericType() == double.class || field.getGenericType() == Double.class) {
+                            value = json.getDouble(jsonParamName);
+                            if (Double.isInfinite((Double) value)) {
+                                throw new JsonException(jsonParamName + " is infinite");
+                            }
+                            if (Double.isNaN((Double) value)) {
+                                throw new JsonException(jsonParamName + " not a number");
+                            }
+                        } else if (field.getGenericType() == String.class) {
+                            value = json.getString(jsonParamName);
+                        } else if (field.getGenericType() == Boolean.class || field.getGenericType() == boolean.class) {
+                            value = json.getBoolean(jsonParamName);
+                        } else if (field.getGenericType() == Date.class) {
+                            if (field.isAnnotationPresent(JsonDatePattern.class)) {
+                                String datePattern = field.getAnnotation(JsonDatePattern.class).value();
+                                value = new SimpleDateFormat(datePattern).parse(json.getString(jsonParamName));
+                            } else if (field.isAnnotationPresent(JsonDateParam.class)) {
+                                String datePattern = field.getAnnotation(JsonDateParam.class).pattern();
+                                value = new SimpleDateFormat(datePattern).parse(json.getString(jsonParamName));
+                            } else {
+                                value = new Date(json.getLong(jsonParamName));
+                            }
+                        } else if (field.getType().isEnum()) {
+                            JsonEnumType type = JsonEnumType.STRING;
+                            if (field.isAnnotationPresent(JsonEnum.class)) {
+                                type = field.getAnnotation(JsonEnum.class).value();
+                            }
+                            switch (type) {
+                                case ORDINAL:
+                                    value = field.getType().getEnumConstants()[json.getInt(jsonParamName)];
+                                    break;
+                                case STRING:
+                                    value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName));
+                                    break;
+                            }
+                        } else if (isJsonDTOClass(field.getType())) {
+                            try {
+                                JSONObject jsonObj = json.getJSONObject(jsonParamName);
+                                value = fromJSON((JsonDTO) field.getType().newInstance(), jsonObj);
+                            } catch (JSONException ignore) {
+                                value = null;
+                            }
+                        } else if (field.getType().isAssignableFrom(List.class)) {
+                            String listItemClassName = method.getGenericParameterTypes()[0].toString();
+                            listItemClassName = listItemClassName.substring(listItemClassName.indexOf("<") + 1, listItemClassName.indexOf(">"));
+                            Class clazz = Class.forName(listItemClassName);
+                            List list = new ArrayList();
+                            JSONArray jsonArray = json.getJSONArray(jsonParamName);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                if (isJsonDTOClass(clazz)) {
+                                    list.add(fromJSON((JsonDTO) clazz.newInstance(), jsonArray.getJSONObject(i)));
+                                } else {
+                                    list.add(jsonArray.get(i));
+                                }
+                            }
+                            method.invoke(obj, list);
+                        } else if (Map.class.isAssignableFrom(field.getType())) {
+                            Map map = (Map) field.getType().newInstance();
+                            JSONObject mapJson = json.getJSONObject(jsonParamName);
+                            for (Object keyObj : mapJson.keySet()) {
+                                String key = (String) keyObj;
+                                map.put(key, mapJson.getString(key));
+                            }
+                            value = map;
+                        } else if (JSONObject.class.isAssignableFrom(field.getType())) {
+                            value = json.getJSONObject(jsonParamName);
+                        } else if (JSONArray.class.isAssignableFrom(field.getType())) {
+                            value = json.getJSONArray(jsonParamName);
                         }
-                        method.invoke(obj, list);
-                    } else if (Map.class.isAssignableFrom(field.getType())) {
-                        Map map = (Map) field.getType().newInstance();
-                        JSONObject mapJson = json.getJSONObject(jsonParamName);
-                        for (Object keyObj : mapJson.keySet()) {
-                            String key = (String) keyObj;
-                            map.put(key, mapJson.getString(key));
-                        }
-                        value = map;
-                    } else if (JSONObject.class.isAssignableFrom(field.getType())) {
-                        value = json.getJSONObject(jsonParamName);
-                    } else if (JSONArray.class.isAssignableFrom(field.getType())) {
-                        value = json.getJSONArray(jsonParamName);
                     }
-
                     if (value != null) {
                         method.invoke(obj, value);
                     }
