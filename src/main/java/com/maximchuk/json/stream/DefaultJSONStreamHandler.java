@@ -2,6 +2,7 @@ package com.maximchuk.json.stream;
 
 import com.maximchuk.json.exception.JsonException;
 import org.json.JSONException;
+import org.json.JSONTokener;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -96,7 +97,7 @@ public class DefaultJSONStreamHandler {
     private void preparePrimitive() {
         if (!buf.isEmpty()) {
             if (key != null) {
-                objectPrimitive(key, buf);
+                objectPrimitive(key, new JSONTokener("\"" + buf + "\"").nextValue().toString());
                 key = null;
             } else {
                 arrayPrimitive(buf);
