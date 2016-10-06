@@ -239,7 +239,9 @@ public abstract class JsonDTO {
                                     value = field.getType().getEnumConstants()[json.getInt(jsonParamName)];
                                     break;
                                 case STRING:
-                                    value = Enum.valueOf((Class<Enum>) field.getType(), json.getString(jsonParamName));
+                                    String enumName = field.getAnnotation(JsonEnum.class).forceUppercase() ?
+                                            json.getString(jsonParamName).toUpperCase() : json.getString(jsonParamName);
+                                    value = Enum.valueOf((Class<Enum>) field.getType(), enumName);
                                     break;
                             }
                         } else if (isJsonDTOClass(field.getType())) {

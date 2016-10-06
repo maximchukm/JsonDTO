@@ -12,4 +12,5 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface JsonEnum {
     JsonEnumType value() default JsonEnumType.STRING;
+    boolean forceUppercase() default false;
 }
