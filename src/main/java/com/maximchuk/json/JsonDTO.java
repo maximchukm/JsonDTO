@@ -309,7 +309,7 @@ public abstract class JsonDTO {
         Method method;
         try {
             String fieldName = field.getName();
-            String methodName = "set" + fieldName.replaceFirst(fieldName.substring(0, 1), fieldName.substring(0, 1).toUpperCase());
+            String methodName = "set" + fieldName.replaceFirst(fieldName.substring(0, 1), fieldName.substring(0, 1).toUpperCase(Locale.ENGLISH));
             method = clazz.getDeclaredMethod(methodName, field.getType());
         } catch (NoSuchMethodException ex) {
             if (clazz.getSuperclass() != JsonDTO.class) {
@@ -324,7 +324,7 @@ public abstract class JsonDTO {
     private Method getGetterMethod(Class clazz, String fieldName) throws NoSuchMethodException {
         Method method;
         try {
-            String methodName = "get" + fieldName.replaceFirst(fieldName.substring(0, 1), fieldName.substring(0, 1).toUpperCase());
+            String methodName = "get" + fieldName.replaceFirst(fieldName.substring(0, 1), fieldName.substring(0, 1).toUpperCase(Locale.ENGLISH));
             method = clazz.getDeclaredMethod(methodName);
         } catch (NoSuchMethodException ex) {
             if (clazz.getSuperclass() != JsonDTO.class) {
